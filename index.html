@@ -5,21 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.7.16.min.js"></script>
-    <script src="app.js"></script>
-    <title>Document</title>
+    <title>TodoList</title>
 </head>
 <body>
+    <div>
+        <input placeholder="Search or add item"><button>ADD</button></input>
+    </div>
+    <div>
+        <ul id="listOfTags">
+            
+        </ul>
+    </div>
+    <div>
+        <ul id="listOfTodos">
 
+        </ul>
+    </div>
 </body>
 <script type="text/javascript">
     AWS.config.update({
     region: "eu-north-1",
     endpoint: 'https://dynamodb.eu-north-1.amazonaws.com',
-    // accessKeyId default can be used while using the downloadable version of DynamoDB. 
-    // For security reasons, do not store AWS Credentials in your files. Use Amazon Cognito instead.
     accessKeyId: "X",
-    // secretAccessKey default can be used while using the downloadable version of DynamoDB. 
-    // For security reasons, do not store AWS Credentials in your files. Use Amazon Cognito instead.
     secretAccessKey: "Y"
     });
 
@@ -29,6 +36,7 @@
         TableName: "TodoItem",
     };
 
+
     docClient.scan(scanParams, onScan);
 
     function onScan(err, data) {
@@ -37,8 +45,41 @@
         } else {
             // get all todos
             console.log("Scan succeeded.");
+            var tagUl = document.getElementById("listOfTags");
+            var todoUl = document.getElementById("listOfTodos");
+            //Iterate over the data
             data.Items.forEach(function(todo) {
-            console.log(todo);
+
+                //Create the Tag buttons
+                todo.tags.forEach(function(tag){
+                    //TODO - no doubles - new search parameters?
+                    var tagLi = document.createElement("li");
+                    var tagBtn = document.createElement("button");
+                    tagBtn.innerHTML = tag.tagText;
+                    tagBtn.setAttribute("style", "background-color:"+tag.color)
+                    tagLi.appendChild(tagBtn);
+                    tagUl.append(tagLi);
+                });
+
+               //Create the list of Todos
+               var todoLi = document.createElement("li");
+               var chkBox = document.createElement("input");
+               chkBox.setAttribute("type", "checkbox");
+
+               var todoText = document.createTextNode(todo.todo);
+               console.log(todo)
+
+                todoLi.appendChild(chkBox);
+                todoLi.appendChild(todoText);
+
+                todo.tags.forEach(function(tag){
+                    var todoBtnTag = document.createElement("button");
+                    todoBtnTag.innerHTML = tag.tagText;
+                    todoBtnTag.setAttribute("style", "background-color:"+tag.color)
+                    todoLi.appendChild(todoBtnTag);
+                });
+
+               todoUl.append(todoLi)
             });
 
             // continue scanning if more than 1Mb
@@ -50,6 +91,10 @@
             }
         }
     }
+
+
+    
+
 
     </script>
 </html>
