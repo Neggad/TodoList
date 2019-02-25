@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.7.16.min.js"></script>
+    <script src="app.js"></script>
+    <title>Document</title>
+</head>
+<body>
+
+</body>
+<script type="text/javascript">
+    AWS.config.update({
+    region: "eu-north-1",
+    endpoint: 'https://dynamodb.eu-north-1.amazonaws.com',
+    // accessKeyId default can be used while using the downloadable version of DynamoDB. 
+    // For security reasons, do not store AWS Credentials in your files. Use Amazon Cognito instead.
+    accessKeyId: "X",
+    // secretAccessKey default can be used while using the downloadable version of DynamoDB. 
+    // For security reasons, do not store AWS Credentials in your files. Use Amazon Cognito instead.
+    secretAccessKey: "Y"
+    });
+
+    var docClient = new AWS.DynamoDB.DocumentClient();
+
+    var scanParams = {
+        TableName: "TodoItem",
+    };
+
+    docClient.scan(scanParams, onScan);
+
+    function onScan(err, data) {
+        if (err) {
+            console.error("Unable to scan the table. Error JSON:", JSON.stringify(err, null, 2));
+        } else {
+            // get all todos
+            console.log("Scan succeeded.");
+            data.Items.forEach(function(todo) {
+            console.log(todo);
+            });
+
+            // continue scanning if more than 1Mb
+            if (typeof data.LastEvaluatedKey != "undefined") {
+                console.log("Scanning for more...");
+                //Todo paging search results?
+                // params.ExclusiveStartKey = data.LastEvaluatedKey;
+                // docClient.scan(params, onScan);
+            }
+        }
+    }
+
+    </script>
+</html>
+
+<script>
+
+
+</script>
+
