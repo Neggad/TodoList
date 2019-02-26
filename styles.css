@@ -1,0 +1,55 @@
+.container{
+    width:50%;
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Search/add bar */
+.searchFieldContainer{
+    width:100%;
+    border:1px solid black;
+    border-radius: 5px;
+    padding:3px;
+}
+.searchField{
+    width:90%;
+    border:none;
+}
+.addButton{
+    background-color:red;
+    color:white;
+}
+/* Tag List */
+.tagList{
+    width:100%;
+    display: flex;
+    flex-direction: row;
+    width:100%;
+}
+
+/* Todo List */
+.todoUl{
+    padding-left:none;
+    width:100%;
+}
+.todoListContainer{
+    width:100%;
+}
+.todoLi{
+    list-style: none;
+    padding:none;
+    display:flex;
+    flex-direction: row;
+}
+
+/* Todo Row */
+.todoChkDiv{
+    min-width: 10%;
+}
+.todoTxtDiv{
+    min-width: 60%;
+}
+.todoTagsDiv{
+    min-width: 30%;
+}

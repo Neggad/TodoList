@@ -5,21 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.7.16.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="styles.css">
     <title>TodoList</title>
 </head>
 <body>
-    <div>
-        <input placeholder="Search or add item"><button>ADD</button></input>
-    </div>
-    <div>
-        <ul id="listOfTags">
-            
-        </ul>
-    </div>
-    <div>
-        <ul id="listOfTodos">
-
-        </ul>
+    <div class="container">
+        <!-- Searchfield and the add button -->
+        <div class="searchFieldContainer">
+            <input placeholder="Search or add item" class="searchField"></input>
+            <button class="addButton">ADD</button>
+        </div>
+        <!-- List the available tags -->
+        <div id="listOfTags" class="tagList"> 
+        </div>
+        <!-- List of all todos in the database -->
+        <div class="todoListContainer">
+            <ul id="listOfTodos" class="todoUl">
+                
+            </ul>
+        </div>
     </div>
 </body>
 <script type="text/javascript">
@@ -36,7 +40,6 @@
         TableName: "TodoItem",
     };
 
-
     docClient.scan(scanParams, onScan);
 
     function onScan(err, data) {
@@ -45,41 +48,56 @@
         } else {
             // get all todos
             console.log("Scan succeeded.");
-            var tagUl = document.getElementById("listOfTags");
+
+            var tagList = document.getElementById("listOfTags");
+
             var todoUl = document.getElementById("listOfTodos");
+
             //Iterate over the data
             data.Items.forEach(function(todo) {
 
                 //Create the Tag buttons
                 todo.tags.forEach(function(tag){
                     //TODO - no doubles - new search parameters?
-                    var tagLi = document.createElement("li");
-                    var tagBtn = document.createElement("button");
-                    tagBtn.innerHTML = tag.tagText;
-                    tagBtn.setAttribute("style", "background-color:"+tag.color)
-                    tagLi.appendChild(tagBtn);
-                    tagUl.append(tagLi);
+                    var buttonTagList = document.createElement("button");
+                    buttonTagList.setAttribute("class", "buttonTagList");
+                    buttonTagList.innerHTML = tag.tagText;
+                    buttonTagList.setAttribute("style", "background-color:"+tag.color);
+
+                    tagList.append(buttonTagList);
                 });
 
-               //Create the list of Todos
-               var todoLi = document.createElement("li");
-               var chkBox = document.createElement("input");
-               chkBox.setAttribute("type", "checkbox");
+                //Create the list of Todos
+                var todoLi = document.createElement("li");
+                todoLi.setAttribute("class", "todoLi");
 
-               var todoText = document.createTextNode(todo.todo);
-               console.log(todo)
+                //Checkbox div
+                var todoChkDiv = document.createElement("div");
+                todoChkDiv.setAttribute("class", "todoChkDiv");
+                var chkBox = document.createElement("input");
+                chkBox.setAttribute("type", "checkbox");
+                todoChkDiv.appendChild(chkBox);
+                
+                //Todo text div
+                var todoTxtDiv = document.createElement("div");
+                todoTxtDiv.setAttribute("class", "todoTxtDiv");
+                var todoText = document.createTextNode(todo.todo);
+                todoTxtDiv.appendChild(todoText);
 
-                todoLi.appendChild(chkBox);
-                todoLi.appendChild(todoText);
-
+                //Tag buttons
+                var todoTagsDiv = document.createElement("div");
+                todoTagsDiv.setAttribute("class", "todoTagsDiv")
                 todo.tags.forEach(function(tag){
                     var todoBtnTag = document.createElement("button");
                     todoBtnTag.innerHTML = tag.tagText;
                     todoBtnTag.setAttribute("style", "background-color:"+tag.color)
-                    todoLi.appendChild(todoBtnTag);
+                    todoTagsDiv.appendChild(todoBtnTag);
                 });
 
-               todoUl.append(todoLi)
+               todoLi.append(todoChkDiv);
+               todoLi.append(todoTxtDiv);
+               todoLi.append(todoTagsDiv);
+               todoUl.append(todoLi);
             });
 
             // continue scanning if more than 1Mb
@@ -91,11 +109,6 @@
             }
         }
     }
-
-
-    
-
-
     </script>
 </html>
 
