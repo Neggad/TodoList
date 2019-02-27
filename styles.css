@@ -8,17 +8,21 @@
 /* Search/add bar */
 .searchFieldContainer{
     width:100%;
-    border:1px solid black;
+    min-height: 30px;
+    border:1px solid grey;
     border-radius: 5px;
-    padding:3px;
+    /* padding:3px; */
+    display:flex;
 }
 .searchField{
     width:90%;
     border:none;
+    padding:2px;
+    border-radius: 5px;
 }
 .addButton{
     background-color:red;
-    color:white;
+    width:10%;
 }
 /* Tag List */
 .tagList{
@@ -26,21 +30,24 @@
     display: flex;
     flex-direction: row;
     width:100%;
+    border:1px solid orange;
 }
 
 /* Todo List */
 .todoUl{
-    padding-left:none;
+    padding: 0;
+    margin:0;
+    list-style-type: none;
     width:100%;
 }
 .todoListContainer{
     width:100%;
+    border:1px solid pink;
 }
 .todoLi{
-    list-style: none;
-    padding:none;
     display:flex;
     flex-direction: row;
+    margin:2px 0;
 }
 
 /* Todo Row */
@@ -52,4 +59,14 @@
 }
 .todoTagsDiv{
     min-width: 30%;
+}
+
+.roundedBtn{
+    border: none;
+    border-radius: 5px;
+    padding:5px;
+    min-width:40px;
+    color:white;
+    font-weight: bold;
+    margin:2px 2px;
 }

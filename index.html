@@ -12,8 +12,8 @@
     <div class="container">
         <!-- Searchfield and the add button -->
         <div class="searchFieldContainer">
-            <input placeholder="Search or add item" class="searchField"></input>
-            <button class="addButton">ADD</button>
+            <input id="inputField" placeholder="Search or add item" class="searchField"></input>
+            <button id ="tempBtn"class="addButton roundedBtn" onClick="addTagOrTodo()">ADD</button>
         </div>
         <!-- List the available tags -->
         <div id="listOfTags" class="tagList"> 
@@ -60,7 +60,7 @@
                 todo.tags.forEach(function(tag){
                     //TODO - no doubles - new search parameters?
                     var buttonTagList = document.createElement("button");
-                    buttonTagList.setAttribute("class", "buttonTagList");
+                    buttonTagList.setAttribute("class", "buttonTagList roundedBtn");
                     buttonTagList.innerHTML = tag.tagText;
                     buttonTagList.setAttribute("style", "background-color:"+tag.color);
 
@@ -90,7 +90,8 @@
                 todo.tags.forEach(function(tag){
                     var todoBtnTag = document.createElement("button");
                     todoBtnTag.innerHTML = tag.tagText;
-                    todoBtnTag.setAttribute("style", "background-color:"+tag.color)
+                    todoBtnTag.setAttribute("style", "background-color:"+tag.color);
+                    todoBtnTag.setAttribute("class", "roundedBtn");
                     todoTagsDiv.appendChild(todoBtnTag);
                 });
 
@@ -108,6 +109,31 @@
                 // docClient.scan(params, onScan);
             }
         }
+    }
+    function addTodo(){
+
+    }
+    function randomColor(){ //not really unique..
+        var randRed = Math.random() * (255);
+        var randGreen = Math.random() * (255);
+        var randBlue = Math.random() * (255);
+        var resultColor = "rgb("+ randRed + "," + randGreen + "," + randBlue + ")";
+
+        // document.getElementById("tempBtn").setAttribute("style", "background-color:" + resultColor);
+    }
+    function addTagOrTodo(){
+        var inputText = document.getElementById("inputField").value;
+        if(inputText[0] === "#"){
+            //ok add it as a tag
+        }
+        else{
+            //ok its a todo, do we need tags?
+        }
+        console.log(inputText[0])
+        // if()
+
+
+
     }
     </script>
 </html>
