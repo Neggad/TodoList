@@ -36,28 +36,20 @@
 
     var docClient = new AWS.DynamoDB.DocumentClient();
 
-    var scanParams = {
+    var scanAllTodosParams = {
         TableName: "TodoItem",
     };
-
-    docClient.scan(scanParams, onScan);
-
-    function onScan(err, data) {
+    var scanAllTagsParams = {
+        TableName: "TodoTags",
+    };
+    docClient.scan(scanAllTagsParams, function(err, data){
         if (err) {
             console.error("Unable to scan the table. Error JSON:", JSON.stringify(err, null, 2));
         } else {
-            // get all todos
-            console.log("Scan succeeded.");
-
+            console.log(data)
             var tagList = document.getElementById("listOfTags");
-
-            var todoUl = document.getElementById("listOfTodos");
-
-            //Iterate over the data
-            data.Items.forEach(function(todo) {
-
-                //Create the Tag buttons
-                todo.tags.forEach(function(tag){
+            //Create the Tag buttons
+            data.Items.forEach(function(tag){
                     //TODO - no doubles - new search parameters?
                     var buttonTagList = document.createElement("button");
                     buttonTagList.setAttribute("class", "buttonTagList roundedBtn");
@@ -66,7 +58,22 @@
 
                     tagList.append(buttonTagList);
                 });
+        }
+    });
+    docClient.scan(scanAllTodosParams, function(err, data) {
+        if (err) {
+            console.error("Unable to scan the table. Error JSON:", JSON.stringify(err, null, 2));
+        } else {
+            // get all todos
+            console.log("Scan succeeded.");
 
+
+            var todoUl = document.getElementById("listOfTodos");
+
+            //Iterate over the data
+            data.Items.forEach(function(todo) {
+
+                
                 //Create the list of Todos
                 var todoLi = document.createElement("li");
                 todoLi.setAttribute("class", "todoLi");
@@ -109,15 +116,17 @@
                 // docClient.scan(params, onScan);
             }
         }
-    }
+    });
+
+    
     function addTodo(){
 
     }
     function randomColor(){ //not really unique..
-        var randRed = Math.random() * (255);
-        var randGreen = Math.random() * (255);
-        var randBlue = Math.random() * (255);
-        var resultColor = "rgb("+ randRed + "," + randGreen + "," + randBlue + ")";
+        var randRed = Math.floor(Math.random() * (255));
+        var randGreen = Math.floor(Math.random() * (255));
+        var randBlue = Math.floor(Math.random() * (255));
+        return ("rgb("+ randRed + "," + randGreen + "," + randBlue + ")");
 
         // document.getElementById("tempBtn").setAttribute("style", "background-color:" + resultColor);
     }
@@ -125,6 +134,25 @@
         var inputText = document.getElementById("inputField").value;
         if(inputText[0] === "#"){
             //ok add it as a tag
+            var newTxt = inputText.substr(1);
+            
+            var addTagParams = {
+                TableName:"TodoTags",
+                Item:{
+                "color": randomColor(),
+                "tagText": newTxt
+                }
+            }
+
+            docClient.put(addTagParams, function(err, data) {
+                if (err) {
+                    console.error("Unable to add item. Error JSON:", JSON.stringify(err, null, 2));
+                } else {
+                    console.log("Added item:", JSON.stringify(data, null, 2));
+                }
+            });
+
+
         }
         else{
             //ok its a todo, do we need tags?
@@ -142,4 +170,4 @@
 
 
 </script>
-
+ 
