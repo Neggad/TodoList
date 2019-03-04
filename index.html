@@ -15,6 +15,10 @@
             <input id="inputField" placeholder="Search or add item" class="searchField"></input>
             <button id ="tempBtn"class="addButton roundedBtn" onClick="addTagOrTodo()">ADD</button>
         </div>
+        <!-- Selected tags -->
+        <div id="selectedTagContainer">
+
+        </div>
         <!-- List the available tags -->
         <div id="listOfTags" class="tagList"> 
         </div>
@@ -30,8 +34,8 @@
     AWS.config.update({
     region: "eu-north-1",
     endpoint: 'https://dynamodb.eu-north-1.amazonaws.com',
-    accessKeyId: "X",
-    secretAccessKey: "Y"
+    accessKeyId: "AKIAJAARYCXDE6TO3GEQ",
+    secretAccessKey: "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"
     });
 
     var docClient = new AWS.DynamoDB.DocumentClient();
@@ -42,6 +46,11 @@
     var scanAllTagsParams = {
         TableName: "TodoTags",
     };
+    searchTodos(scanAllTodosParams);
+    var selectedTags = [];
+    var allTodos = [];
+    var filteredTodos = [];
+
     docClient.scan(scanAllTagsParams, function(err, data){
         if (err) {
             console.error("Unable to scan the table. Error JSON:", JSON.stringify(err, null, 2));
@@ -51,16 +60,23 @@
             //Create the Tag buttons
             data.Items.forEach(function(tag){
                     //TODO - no doubles - new search parameters?
+                    //TODO - not sorted alphabetically
                     var buttonTagList = document.createElement("button");
                     buttonTagList.setAttribute("class", "buttonTagList roundedBtn");
                     buttonTagList.innerHTML = tag.tagText;
                     buttonTagList.setAttribute("style", "background-color:"+tag.color);
+                    buttonTagList.setAttribute("onClick", "selectTag("+"'"+tag.tagText+"'"+","+"'"+tag.color+"'"+")");
 
                     tagList.append(buttonTagList);
                 });
         }
     });
-    docClient.scan(scanAllTodosParams, function(err, data) {
+    
+    function searchTodos(params){
+        console.log("searchTodo params", params)
+        //clear list
+        document.getElementById("listOfTodos").innerHTML = "";
+        docClient.scan(params, function(err, data) {
         if (err) {
             console.error("Unable to scan the table. Error JSON:", JSON.stringify(err, null, 2));
         } else {
@@ -72,8 +88,8 @@
 
             //Iterate over the data
             data.Items.forEach(function(todo) {
-
-                
+                //save all todos
+                allTodos.push(todo);
                 //Create the list of Todos
                 var todoLi = document.createElement("li");
                 todoLi.setAttribute("class", "todoLi");
@@ -118,19 +134,155 @@
         }
     });
 
-    
-    function addTodo(){
-
     }
-    function randomColor(){ //not really unique..
+
+function findFilterObj(todo, temp){
+    var wantToReturn = {};
+    for(var i = 0; i < todo.tags.length; i++){
+        //loop over the selected tags
+        for(var j = 0; j < selectedTags.length; j++){
+            if(todo.tags[i].tagText === selectedTags[j].tagText){
+                //If its the first todo in FilteredTodos, add it
+                if(filteredTodos.length === 0){
+                    return todo;
+                }
+                else{
+                    //The selected tag exists in this todo
+                    //Loop over the copy of the filteredTodo array
+                    for(var k = 0; k < temp.length; k++){
+                        //Check if the todo text exists in temp
+                            if(todo.todo === temp[k].todo){
+                                return "";
+                            }
+                            else{
+                                //save the possibly new todo
+                                wantToReturn = todo;
+                            }
+                    }
+                    //If wantToReturn has an object, return it
+                    if(wantToReturn != {}){
+                            return wantToReturn;
+                        }
+                }
+            }
+        }
+    }
+    return "";
+}
+
+    function filterTodos(allTodos, selectedTags){
+        var tempTodos = filteredTodos;
+        allTodos.forEach(function(todo){
+            //loop over the tags in each todo
+            var todoF = findFilterObj(todo, tempTodos);
+            if(todoF != "")
+                filteredTodos.push(todoF);
+        })
+    }
+    function updateTodos(todos){
+        console.log("filtered", todos);
+        //clear list
+        document.getElementById("listOfTodos").innerHTML = "";
+            var todoUl = document.getElementById("listOfTodos");
+            //Iterate over the data
+            todos.forEach(function(todo) {
+
+                //Create the list of Todos
+                var todoLi = document.createElement("li");
+                todoLi.setAttribute("class", "todoLi");
+
+                //Checkbox div
+                var todoChkDiv = document.createElement("div");
+                todoChkDiv.setAttribute("class", "todoChkDiv");
+                var chkBox = document.createElement("input");
+                chkBox.setAttribute("type", "checkbox");
+                todoChkDiv.appendChild(chkBox);
+                
+                //Todo text div
+                var todoTxtDiv = document.createElement("div");
+                todoTxtDiv.setAttribute("class", "todoTxtDiv");
+                var todoText = document.createTextNode(todo.todo);
+                todoTxtDiv.appendChild(todoText);
+
+                //Tag buttons
+                var todoTagsDiv = document.createElement("div");
+                todoTagsDiv.setAttribute("class", "todoTagsDiv")
+                todo.tags.forEach(function(tag){
+                    var todoBtnTag = document.createElement("button");
+                    todoBtnTag.innerHTML = tag.tagText;
+                    todoBtnTag.setAttribute("style", "background-color:"+tag.color);
+                    todoBtnTag.setAttribute("class", "roundedBtn");
+                    todoTagsDiv.appendChild(todoBtnTag);
+                });
+
+               todoLi.append(todoChkDiv);
+               todoLi.append(todoTxtDiv);
+               todoLi.append(todoTagsDiv);
+               todoUl.append(todoLi);
+            });
+    }
+
+    function randomColor(){ 
+        //TODO make it unique not random
         var randRed = Math.floor(Math.random() * (255));
         var randGreen = Math.floor(Math.random() * (255));
         var randBlue = Math.floor(Math.random() * (255));
         return ("rgb("+ randRed + "," + randGreen + "," + randBlue + ")");
-
-        // document.getElementById("tempBtn").setAttribute("style", "background-color:" + resultColor);
     }
+    //Select a tag for filtering
+    function selectTag(tagText, color){
+        //TODO can add same tag multiple times
+        var buttonTag = document.createElement("button");
+        buttonTag.setAttribute("class", "buttonTagList roundedBtn");
+        var tagId = Date.now()*1;
+        console.log("tagId", tagId)
+        buttonTag.setAttribute("id", tagId);
+
+        buttonTag.innerHTML = tagText;
+        buttonTag.setAttribute("style", "background-color:"+color);
+        buttonTag.setAttribute("onClick", "removeTag( '" + tagId + "' , '" + tagText + "')");
+
+        selectedTagContainer.append(buttonTag);
+        var selectedObj = {"color": color, "tagText": tagText};
+        selectedTags.push(selectedObj);
+
+        var doFilter = new Promise(function(resolve, rejected){
+
+            filterTodos(allTodos, selectedTags);
+
+            if(filteredTodos.length === 0){
+                var reason = "Could not filter the data";
+                reject(reason);
+            }
+            else{
+                console.log("resolve?")
+                resolve(filteredTodos);
+            }
+        })
+
+        doFilter.then(function(value){
+                console.log("got it", value);
+                updateTodos(value);
+        })
+        .catch(function(error){
+            console.log("error", error.message)
+        })
+    
+
+        //updateTodos();
+    }
+
+ 
+
+
+    //De-select a tag for filtering
+    function removeTag(tagId, tagText){
+        selectedTags.splice(selectedTags.indexOf(tagText), 1);
+        document.getElementById(tagId).remove();
+    }
+
     function addTagOrTodo(){
+        //TODO Escape characters ' for example 
         var inputText = document.getElementById("inputField").value;
         if(inputText[0] === "#"){
             //ok add it as a tag
@@ -156,6 +308,7 @@
         }
         else{
             //ok its a todo, do we need tags?
+
         }
         console.log(inputText[0])
         // if()
@@ -165,9 +318,3 @@
     }
     </script>
 </html>
-
-<script>
-
-
-</script>
- 
